@@ -26,6 +26,7 @@
 import sys
 import os.path
 import vlc
+import json
 from PyQt4 import QtGui, QtCore
 
 class Player(QtGui.QMainWindow):
@@ -230,30 +231,49 @@ class RatingEventKeyAdapter:
     def __init__(self, receiver):
         self.receiver = receiver
     def keyPressed(self, key, frameno):
-        print "Frame: "+str(frameno)
         if key == "1":
-            self.receiver.setRating(1)
+            self.receiver.setRating(frameno, 1)
         elif key == "2":
-            self.receiver.setRating(2)
+            self.receiver.setRating(frameno, 2)
         elif key == "3":
-            self.receiver.setRating(3)
+            self.receiver.setRating(frameno, 3)
         elif key == "4":
-            self.receiver.setRating(4)
+            self.receiver.setRating(frameno, 4)
         elif key == "5":
-            self.receiver.setRating(5)
+            self.receiver.setRating(frameno, 5)
         elif key == "0":
-            self.receiver.setRating(0)
+            self.receiver.setRating(frameno, 0)
         # Ignore other key events.
 
 class ClipInfoManager:
-    def __init__(self):
-        pass
-    def setRating(frameNo, rating):
-        print rating 
+    def __init__(self, filename, clipInfoFile):
+        self.filename = filename 
+        self.clipInfoFile = clipInfoFile
+    def setRating(self, frameNo, rating):
+        #print str(frameNo)+": "+str(rating)
+        self.clipInfoFile.addInfo(frameNo, rating)
 
+class ClipInfoJsonFile:
+    def __init__(self, basename):
+        self.filename = basename+".json"
+        if os.path.isfile(self.filename):
+            fp = open(self.filename, "r")
+            self.info = json.load(fp)
+            fp.close()
+        else: 
+            self.info = []
+    def addInfo(self, frameno, rating):
+        self.info.append({"frameno" : frameno, "rating" : rating})
+        self.write()
+    def write(self):
+        fp = open(self.filename, "w")
+        json.dump(self.info, fp)
+        fp.close()
 
 if __name__ == "__main__":
-    clipInfoManager = ClipInfoManager()
+    filename = sys.argv[1]
+    clipInfoFile = ClipInfoJsonFile(filename)
+    clipInfoManager = ClipInfoManager(filename, clipInfoFile)
     ratingAdapter = RatingEventKeyAdapter(clipInfoManager)
 
     app = QtGui.QApplication(sys.argv)
@@ -262,5 +282,5 @@ if __name__ == "__main__":
     player.show()
     player.resize(640, 480)
     if sys.argv[1:]:
-        player.OpenFile(sys.argv[1])
+        player.OpenFile(filename)
     sys.exit(app.exec_())
