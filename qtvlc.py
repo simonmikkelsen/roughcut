@@ -42,25 +42,29 @@ class Player(QtGui.QMainWindow):
 
         self.createUI()
         self.isPaused = False
+        self.frameRate = -1
+
     def keyPressEvent(self, e):
         if self.keyListener == None:
             return
-        self.keyListener.keyPressed(e.text(), self.mediaplayer.get_time())
-        media = self.mediaplayer.get_media()
-        tracks = media.tracks_get()
 
-        #print dir(tracks)
-        #print str(tracks)
-        #print "------"
-        for x in range(0, 1):
-            #print str(tracks[x])
-            #print "2nd: "+str(tracks[x][0])
-            #print str(tracks[x][0][0])
-            #print dir(tracks[x][0][0].u.video)
-            print str(tracks[x][0][0].u.video[0].frame_rate_num)
-            print str(tracks[x][0][0].u.video[0].frame_rate_den)
-        #for value in tracks:
-        #    print str(value)
+        mediaTime = self.mediaplayer.get_time()
+        if mediaTime < 0:
+            return
+
+        framerate = self.getFrameRate()
+        frameNo = int(mediaTime * framerate / 1000)
+        self.keyListener.keyPressed(e.text(), frameNo)
+
+    def getFrameRate(self):
+        if self.frameRate < 0:
+            tracks = self.media.tracks_get()
+            num = tracks[0][0][0].u.video[0].frame_rate_num
+            den = tracks[0][0][0].u.video[0].frame_rate_den
+            if int(den) > 0:
+                self.frameRate = int(num)/int(den)
+        return self.frameRate 
+
     def addKeyListener(self, keyListener):
         self.keyListener = keyListener
 
@@ -226,7 +230,7 @@ class RatingEventKeyAdapter:
     def __init__(self, receiver):
         self.receiver = receiver
     def keyPressed(self, key, frameno):
-        print frameno
+        print "Frame: "+str(frameno)
         if key == "1":
             self.receiver.setRating(1)
         elif key == "2":
