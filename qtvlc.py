@@ -255,7 +255,7 @@ class ClipInfoManager:
 
 class ClipInfoJsonFile:
     def __init__(self, basename):
-        self.filename = basename+".json"
+        self.filename = basename+".qhv.meta"
         if os.path.isfile(self.filename):
             fp = open(self.filename, "r")
             self.info = json.load(fp)
@@ -281,6 +281,6 @@ if __name__ == "__main__":
     player.addKeyListener(ratingAdapter)
     player.show()
     player.resize(640, 480)
-    if sys.argv[1:]:
+    if os.path.isfile(filename):
         player.OpenFile(filename)
     sys.exit(app.exec_())
