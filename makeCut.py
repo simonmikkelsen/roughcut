@@ -20,7 +20,6 @@ class InfoMerger:
 
   def mergeInfo(self):
     merged = []
-    # TODO: Implementer stop i skriveren.
     prevFrameNo = -1
     for entry in self.info:
       frameno = entry['frameno']
