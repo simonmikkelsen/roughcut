@@ -256,18 +256,22 @@ class ClipInfoManager:
 class ClipInfoJsonFile:
     def __init__(self, basename):
         self.filename = basename+".qhv.meta"
+        self.basename = basename
         if os.path.isfile(self.filename):
             fp = open(self.filename, "r")
-            self.info = json.load(fp)
+            info = json.load(fp)
             fp.close()
+            self.frames = info["frames"]
         else: 
-            self.info = []
+            self.frames = []
     def addInfo(self, frameno, rating):
-        self.info.append({"frameno" : frameno, "rating" : rating})
+        self.frames.append({"frameno" : frameno, "rating" : rating})
         self.write()
+    def getFinalDatastructure(self):
+        return {"filename":self.basename, "frames":self.frames}
     def write(self):
         fp = open(self.filename, "w")
-        json.dump(self.info, fp)
+        json.dump(self.getFinalDatastructure(), fp)
         fp.close()
 
 if __name__ == "__main__":

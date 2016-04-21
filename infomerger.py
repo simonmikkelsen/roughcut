@@ -13,6 +13,14 @@ class InfoReader:
 
   def getInfo(self):
     return self.info
+  
+  def getMerger(self):
+    info = self.getInfo()
+    return InfoMerger(info)
+
+  def getOriginalFilename(self):
+    return self.info['filename']
+    
 
 class InfoMerger:
   def __init__(self, info):
@@ -21,7 +29,7 @@ class InfoMerger:
   def mergeInfo(self):
     merged = []
     prevFrameNo = -1
-    for entry in self.info:
+    for entry in self.info['frames']:
       frameno = entry['frameno']
       if frameno < prevFrameNo:
         i = 0
@@ -29,7 +37,7 @@ class InfoMerger:
           if m['frameno'] > frameno:
             break
           else:
-            i = i+1
+            i = i + 1
         merged = merged[:i]
       prevFrameNo = frameno
       merged.append(entry)
@@ -41,8 +49,7 @@ if __name__ == "__main__":
   if not os.path.isfile(filename):
     print "The given filename '%s' does not exist." % filename
   infoReader = InfoReader(filename)
-  info = infoReader.getInfo()
-  merger = InfoMerger(info)
+  merger = infoReader.getMerger()
   print merger.mergeInfo()
 
 
