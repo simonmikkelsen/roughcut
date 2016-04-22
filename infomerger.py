@@ -18,7 +18,7 @@ class InfoReader:
     info = self.getInfo()
     return InfoMerger(info)
 
-  def getOriginalFilename(self):
+  def getFilename(self):
     return self.info['filename']
     
 

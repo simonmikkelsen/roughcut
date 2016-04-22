@@ -6,17 +6,23 @@ import json
 import infomerger
 
 class MkVideo:
-  def __init__(self, infofile):
-    self.infofile = infofile 
-    self.infoReader = infomerger.InfoReader(infofile)
+  def __init__(self, infofiles):
+    self.infofiles = infofiles
 
   def mkMltXml(self):
-    merger = self.infoReader.getMerger()
-    mergedInfo = merger.mergeInfo()
-    header = self.getHeader()
-    body = self.getBody(self.filter(mergedInfo))
+    filenames = []
+    inouts = []
+    for f in self.infofiles:
+      reader = infomerger.InfoReader(f)
+      filenames.append(reader.getFilename())
+      merger = reader.getMerger()
+      mergedInfo = merger.mergeInfo()
+      inouts.append(self.filter(mergedInfo))
+
+    header = self.getHeader(filenames)
+    body = self.getBody(inouts)
     footer = self.getFooter()
-    return header + body + footer
+    return "\n".join([header, body, footer])
 
   def filter(self, mergedInfo):
     latestFrame = -1
@@ -38,28 +44,35 @@ class MkVideo:
 
     return inout
 
-  def getHeader(self):
-    return """<mlt>
-<producer id="producer0">
-       <property name="resource">%s</property>
-            </producer>
-            <playlist id="playlist0">
-""" % self.infoReader.getOriginalFilename()
+  def getHeader(self, filenames):
+    header = ["<mlt>"]
+    i = 0
+    for name in filenames:
+      header.append("""    <producer id="producer%s">
+        <property name="resource">%s</property>
+    </producer>""" % (i, name))
+      i = i + 1
+    header.append('    <playlist id="playlist0">')
+    return "\n".join(header)
 
-  def getBody(self, inout):
-    body = ""
-    for io in inout:
-      body = body + """                <entry producer="producer0" in="%s" out="%s"/>\n""" % (io['in'], io['out'])
-    return body
+  def getBody(self, inouts):
+    body = [] 
+    i = 0
+    for inout in inouts:
+      for io in inout:
+	body.append("""        <entry producer="producer%s" in="%s" out="%s"/>""" % (i, io['in'], io['out']))
+      i = i + 1
+    return "\n".join(body)
     
   def getFooter(self):
-    return "  </playlist>\n</mlt>"
+    return "    </playlist>\n</mlt>"
 
 if __name__ == "__main__":
-  infofile = sys.argv[1]
-  if not os.path.isfile(infofile):
-    print "The given filename '%s' does not exist." % infofile
+  infofiles = sys.argv[1:]
+  for f in infofiles:
+    if not os.path.isfile(f):
+      print "The given filename '%s' does not exist." % f
 
-  mkvid = MkVideo(infofile)
+  mkvid = MkVideo(infofiles)
   mltXml = mkvid.mkMltXml()
   print mltXml
