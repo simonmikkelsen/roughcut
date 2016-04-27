@@ -68,6 +68,9 @@ class MediaIndexer:
       self.data.close()
 
   def registerMedia(self, mediaPath):
+    if self.data.isRegistered(mediaPath):
+      print "Skip: "+mediaPath
+      return
     name = mediaPath.lower()
     if name.endswith(self.videoExtensions):
       self.registerVideo(mediaPath)

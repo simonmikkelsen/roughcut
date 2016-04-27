@@ -11,9 +11,20 @@ class QHVData:
     self.cur.execute("""CREATE TABLE IF NOT EXISTS VIDEO (media_id INTEGER,
                    framerate NUMERIC, maxrating INTEGER)""")
     #               FOREIGN KEY(media_id) REFERENCES MEDIA(rowid));""")
+  def isRegistered(self, fullpath):
+    self.cur.execute('SELECT count(*) FROM MEDIA WHERE fullpath = ?', (fullpath,))
+    res = self.cur.fetchone()
+    return res[0] > 0
+
   def addVideo(self, fullpath, duration, framerate, starttime, maxrating):
     filename = os.path.basename(fullpath)
-    endtime = starttime + duration
+    endtime = -1
+    if starttime != None and duration != None:
+      endtime = starttime + duration
+
+    if duration == None:
+      duration = -1
+
     self.cur.execute('INSERT INTO MEDIA (filename, fullpath, starttime, endtime, duration) VALUES (?, ?, ?, ?, ?)',
       (filename, fullpath, starttime, endtime, duration))
     mediaid = self.cur.lastrowid
