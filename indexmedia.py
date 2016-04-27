@@ -47,25 +47,32 @@ class ExifReader:
 class MediaIndexer:
   def __init__(self, paths):
     self.paths = paths 
-    self.extensions = ('.mp4', '.mts', '.mov', '.avi', '.mpg', '.wav', '.mp3', '.gpx')
+    self.videoExtensions = ('.mp4', '.mts', '.mov', '.avi', '.mpg' )
+    self.audioExtensions = ('.wav', '.mp3')
+    self.locationExtensions = ('.gpx')
+    self.imageExtensions = ('.jpg', '.cr2', '.png', '.tif', '.tiff', '.gif')
+    self.extensions = self.videoExtensions
+
     self.exifReader = ExifReader()
     self.data = qhvsqlite.QHVData()
+
   def doIndex(self):
     try:
-      i = 0
       for path in paths:
         for dirName, subdirList, fileList in os.walk(path):
           if dirName.find("\n") == -1:
             for fname in fileList:
               if fname.lower().endswith(self.extensions):
                 self.registerMedia(os.path.join(dirName, fname))
-                i = i+1
-                if i > 10:
-                  sys.exit()
     finally:
       self.data.close()
 
   def registerMedia(self, mediaPath):
+    name = mediaPath.lower()
+    if name.endswith(self.videoExtensions):
+      self.registerVideo(mediaPath)
+
+  def registerVideo(self, mediaPath):
     self.exifReader.read(mediaPath)
     print "Date, duration, framerate"
     print self.exifReader.getCreateDate()

@@ -1,5 +1,4 @@
 
-
 Dependencies
 ------------
 pyexiftool - https://github.com/smarnach/pyexiftool
