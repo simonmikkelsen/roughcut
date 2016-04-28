@@ -35,7 +35,11 @@ class ExifReader:
     date = self.getOneOf(['CreateDate', 'DateTimeOriginal'])
     # Input e.g.: 2016:01:01 15:52:45+01:00
     date = date.replace(":", "-", 2)
-    dateTimeObj = iso8601.parse_date(date)
+    try:
+      dateTimeObj = iso8601.parse_date(date)
+    except iso8601.iso8601.ParseError, e:
+      print e
+      return -1
     unixtime = calendar.timegm(dateTimeObj.utctimetuple())
     return unixtime
 

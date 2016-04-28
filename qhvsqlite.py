@@ -15,6 +15,9 @@ class QHVData:
     self.cur.execute('SELECT count(*) FROM MEDIA WHERE fullpath = ?', (fullpath,))
     res = self.cur.fetchone()
     return res[0] > 0
+  def getAllMedia(self):
+    self.cur.execute('SELECT rowid, starttime, endtime, fullpath FROM MEDIA')
+    return self.cur.fetchall()
 
   def addVideo(self, fullpath, duration, framerate, starttime, maxrating):
     filename = os.path.basename(fullpath)
