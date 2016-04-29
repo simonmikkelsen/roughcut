@@ -16,8 +16,8 @@ sound2 = selected("Sound")
 select sound1
 plus sound2
 
-Cross-correlate: "peak 0.99" "zero"
+Cross-correlate: "peak 0.99", "zero"
 offset = Get time of maximum: 0, 0, "Sinc70"
 
-writeInfoLine 'offset'
+writeInfoLine: 'offset'
 
