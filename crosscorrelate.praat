@@ -6,11 +6,11 @@ form Cross Corelate two Sounds
 endform
 
 Open long sound file... 'Input_sound_1$'
-Extract part: 0, 30, "no"
+Extract part: 0, 990, "no"
 Extract one channel... 1
 sound1 = selected("Sound")
 Open long sound file... 'Input_sound_2$'
-Extract part: 0, 30, "no"
+Extract part: 0, 990, "no"
 Extract one channel... 1
 sound2 = selected("Sound")
 select sound1
