@@ -5,6 +5,7 @@ import os
 import os.path
 import json
 import calendar
+import sqlite3
 
 import exiftool
 import iso8601
@@ -24,16 +25,20 @@ class ExifReader:
       return self.metadata[key]
     else:
       return None
-  def getOneOf(self, keys):
+  def getOneOf(self, keys, ignoreZero = False):
     for keyToFind in keys:
       for key in self.metadata.keys():
 	if key.endswith(keyToFind):
-          return self.metadata[key]
+          value = self.metadata[key]
+          if not ignoreZero or str(value) != '0':
+            return value
     return None
 
   def getCreateDate(self):
     date = self.getOneOf(['CreateDate', 'DateTimeOriginal'])
     # Input e.g.: 2016:01:01 15:52:45+01:00
+    if date == None:
+      return -1
     date = date.replace(":", "-", 2)
     try:
       dateTimeObj = iso8601.parse_date(date)
@@ -46,7 +51,7 @@ class ExifReader:
   def getFrameRate(self):
     return self.getOneOf(['FrameRate'])
   def getDuration(self):
-    return self.getOneOf(['Duration'])
+    return self.getOneOf(['Duration'], ignoreZero = True)
 
 class MediaIndexer:
   def __init__(self, paths):
@@ -72,6 +77,14 @@ class MediaIndexer:
       self.data.close()
 
   def registerMedia(self, mediaPath):
+    try:
+      mediaPath = unicode(mediaPath)
+    except UnicodeDecodeError as e:
+      print
+      print e
+      print "Unable to encode filename: '%s'." % mediaPath
+      sys.exit()
+      return
     if self.data.isRegistered(mediaPath):
       print "Skip: "+mediaPath
       return
