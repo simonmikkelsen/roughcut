@@ -243,8 +243,10 @@ class RatingEventKeyAdapter:
             self.receiver.setRating(frameno, 5)
         elif key == "0":
             self.receiver.setRating(frameno, 0)
-        elif key == "m":
+        elif key == "l":
             self.receiver.subtractFramesFromLatest(12)
+        elif key == "m":
+            self.receiver.moveRating(frameno)
         # Ignore other key events.
 
 class ClipInfoManager:
@@ -255,6 +257,8 @@ class ClipInfoManager:
         self.clipInfoFile.addInfo(frameNo, rating)
     def subtractFramesFromLatest(self, frames):
         self.clipInfoFile.subtractFramesFromLatest(frames)
+    def moveRating(self, frameno):
+        self.clipInfoFile.moveRating(frameno)
 
 class ClipInfoJsonFile:
     def __init__(self, basename):
@@ -274,6 +278,9 @@ class ClipInfoJsonFile:
         return {"filename":self.basename, "frames":self.frames}
     def subtractFramesFromLatest(self, frames):
         self.frames[-1]["frameno"] = self.frames[-1]["frameno"] - frames
+        self.write()
+    def moveRating(self, frameno):
+        self.frames[-1]["frameno"] = frameno
         self.write()
     def write(self):
         fp = open(self.filename, "w")
