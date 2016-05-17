@@ -3,6 +3,7 @@
 import sys
 import os.path
 import json
+import subprocess
 import infomerger
 
 class MkVideo:
@@ -67,12 +68,37 @@ class MkVideo:
   def getFooter(self):
     return "    </playlist>\n</mlt>"
 
+class MltRunner:
+  def __init__(self, outputfile):
+    self.outputfile = outputfile
+  def getMltFile(self):
+    mltfile = self.outputfile
+    if self.outputfile.find(".") != -1:
+      mltfile = self.outputfile[:self.outputfile.find(".")]
+      mltfile = mltfile + ".mlt"
+    return mltfile
+  def run(self):
+    args = ["melt", self.getMltFile(), "-consumer", "avformat:%s" % self.outputfile]
+    subprocess.call(args)
+
 if __name__ == "__main__":
-  infofiles = sys.argv[1:]
+  if len(sys.argv) < 3:
+    print "Usage: outputfile.mp4 meta-file [meta-file...]"
+    sys.exit(1)
+  outputfile = sys.argv[1]
+  runner = MltRunner(outputfile)
+
+  infofiles = sys.argv[2:]
   for f in infofiles:
     if not os.path.isfile(f):
       print "The given filename '%s' does not exist." % f
 
   mkvid = MkVideo(infofiles)
   mltXml = mkvid.mkMltXml()
-  print mltXml
+  meltfile = runner.getMltFile()
+  fp = open(meltfile, "w")
+  fp.write(mltXml)
+  fp.close()
+
+  runner.run()
+
