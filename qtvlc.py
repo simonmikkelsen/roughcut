@@ -44,6 +44,7 @@ class Player(QtGui.QMainWindow):
         self.createUI()
         self.isPaused = False
         self.frameRate = -1
+        self.currentFileNo = -1
 
     def keyPressEvent(self, e):
         if self.keyListener == None:
@@ -93,20 +94,26 @@ class Player(QtGui.QMainWindow):
                      QtCore.SIGNAL("sliderMoved(int)"), self.setPosition)
 
         self.hbuttonbox = QtGui.QHBoxLayout()
-        self.playbutton = QtGui.QPushButton("Play")
+
+        self.prevbutton = QtGui.QPushButton("P&revious video")
+        self.hbuttonbox.addWidget(self.prevbutton)
+        self.connect(self.prevbutton, QtCore.SIGNAL("clicked()"),
+                     self.prevVideo)
+
+        self.playbutton = QtGui.QPushButton("&Play")
         self.hbuttonbox.addWidget(self.playbutton)
         self.connect(self.playbutton, QtCore.SIGNAL("clicked()"),
                      self.PlayPause)
 
-        self.stopbutton = QtGui.QPushButton("Stop")
+        self.stopbutton = QtGui.QPushButton("&Stop")
         self.hbuttonbox.addWidget(self.stopbutton)
         self.connect(self.stopbutton, QtCore.SIGNAL("clicked()"),
                      self.Stop)
 
-        self.timebutton = QtGui.QPushButton("Time")
-        self.hbuttonbox.addWidget(self.timebutton)
-        self.connect(self.timebutton, QtCore.SIGNAL("clicked()"),
-                     self.PrintTime)
+        self.nextbutton = QtGui.QPushButton("&Next video")
+        self.hbuttonbox.addWidget(self.nextbutton)
+        self.connect(self.nextbutton, QtCore.SIGNAL("clicked()"),
+                     self.nextVideo)
 
         self.hbuttonbox.addStretch(1)
         self.volumeslider = QtGui.QSlider(QtCore.Qt.Horizontal, self)
@@ -126,7 +133,7 @@ class Player(QtGui.QMainWindow):
         self.widget.setLayout(self.vboxlayout)
 
         open = QtGui.QAction("&Open", self)
-        self.connect(open, QtCore.SIGNAL("triggered()"), self.OpenFile)
+        self.connect(open, QtCore.SIGNAL("triggered()"), self.OpenFiles)
         exit = QtGui.QAction("&Exit", self)
         self.connect(exit, QtCore.SIGNAL("triggered()"), sys.exit)
         menubar = self.menuBar()
@@ -140,23 +147,19 @@ class Player(QtGui.QMainWindow):
         self.connect(self.timer, QtCore.SIGNAL("timeout()"),
                      self.updateUI)
 
-    def PrintTime(self):
-        time = self.mediaplayer.get_time()
-        print "Time: "+str(time)
-
     def PlayPause(self):
         """Toggle play/pause status
         """
         if self.mediaplayer.is_playing():
             self.mediaplayer.pause()
-            self.playbutton.setText("Play")
+            self.playbutton.setText("&Play")
             self.isPaused = True
         else:
             if self.mediaplayer.play() == -1:
                 self.OpenFile()
                 return
             self.mediaplayer.play()
-            self.playbutton.setText("Pause")
+            self.playbutton.setText("&Pause")
             self.timer.start()
             self.isPaused = False
 
@@ -165,6 +168,65 @@ class Player(QtGui.QMainWindow):
         """
         self.mediaplayer.stop()
         self.playbutton.setText("Play")
+
+    def updateEnablements(self):
+        if self.currentFileNo + 1 >= len(self.filenames):
+            self.nextbutton.setEnabled(False)
+        else:
+            self.nextbutton.setEnabled(True)
+
+        if self.currentFileNo - 1 < 0:
+            self.prevbutton.setEnabled(False)
+        else:
+            self.prevbutton.setEnabled(True)
+
+    def nextVideo(self):
+        self.currentFileNo = self.currentFileNo + 1
+        self.updateEnablements()
+        self.setFile(self.filenames[self.currentFileNo])
+
+    def prevVideo(self):
+        self.currentFileNo = self.currentFileNo - 1
+        self.updateEnablements()
+        if self.currentFileNo < 0:
+            self.currentFileNo = len(self.filenames) - 1
+        self.setFile(self.filenames[self.currentFileNo])
+
+    def OpenFiles(self):
+        """Open a media file in a MediaPlayer
+        """
+        self.filenames = QtGui.QFileDialog.getOpenFileNames(self, "Open Files", os.path.expanduser('~'), "Videos (*.MP4 *.MOV *.AVI *.MTS *.OGV *.mp4 *.mov *.avi *.mts *.ogv);;All (*.*)")
+
+        if self.filenames == None or len(self.filenames) == 0:
+            return
+        self.nextVideo()
+
+        
+    def setFile(self, filename):
+        # create the media
+        if sys.version < '3':
+            filename = unicode(filename)
+        self.media = self.instance.media_new(filename)
+        # put the media in the media player
+        self.mediaplayer.set_media(self.media)
+
+        # parse the metadata of the file
+        self.media.parse()
+        # set the title of the track as window title
+        self.setWindowTitle(self.media.get_meta(0))
+
+        # the media player has to be 'connected' to the QFrame
+        # (otherwise a video would be displayed in it's own window)
+        # this is platform specific!
+        # you have to give the id of the QFrame (or similar object) to
+        # vlc, different platforms have different functions for this
+        if sys.platform.startswith('linux'): # for Linux using the X Server
+            self.mediaplayer.set_xwindow(self.videoframe.winId())
+        elif sys.platform == "win32": # for Windows
+            self.mediaplayer.set_hwnd(self.videoframe.winId())
+        elif sys.platform == "darwin": # for MacOS
+            self.mediaplayer.set_nsobject(self.videoframe.winId())
+        self.PlayPause()
 
     def OpenFile(self, filename=None):
         """Open a media file in a MediaPlayer
