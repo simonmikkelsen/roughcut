@@ -43,8 +43,12 @@ class Player(QtGui.QMainWindow):
 
         self.createUI()
         self.isPaused = False
+
         self.frameRate = -1
         self.currentFileNo = -1
+
+        self.ratingAdapter = RatingEventKeyAdapter()
+        self.setKeyListener(self.ratingAdapter)
 
     def keyPressEvent(self, e):
         if self.keyListener == None:
@@ -54,11 +58,13 @@ class Player(QtGui.QMainWindow):
         if mediaTime < 0:
             return
 
+        # Calculate the frame number from the framerate and time.
         framerate = self.getFrameRate()
         frameNo = int(mediaTime * framerate / 1000)
         self.keyListener.keyPressed(e.text(), frameNo)
 
     def getFrameRate(self):
+        """Extracts the information to calculate a frame rate from the media."""
         if self.frameRate < 0:
             tracks = self.media.tracks_get()
             num = tracks[0][0][0].u.video[0].frame_rate_num
@@ -67,7 +73,7 @@ class Player(QtGui.QMainWindow):
                 self.frameRate = int(num)/int(den)
         return self.frameRate 
 
-    def addKeyListener(self, keyListener):
+    def setKeyListener(self, keyListener):
         self.keyListener = keyListener
 
     def createUI(self):
@@ -195,12 +201,14 @@ class Player(QtGui.QMainWindow):
     def OpenFiles(self):
         """Open a media file in a MediaPlayer
         """
-        self.filenames = QtGui.QFileDialog.getOpenFileNames(self, "Open Files", os.path.expanduser('~'), "Videos (*.MP4 *.MOV *.AVI *.MTS *.OGV *.mp4 *.mov *.avi *.mts *.ogv);;All (*.*)")
+        filenames = QtGui.QFileDialog.getOpenFileNames(self, "Open Files", os.path.expanduser('~'), "Videos (*.MP4 *.MOV *.AVI *.MTS *.OGV *.mp4 *.mov *.avi *.mts *.ogv);;All (*.*)")
+        self.setFiles(filenames)
 
+    def setFiles(self, filenames):
+        self.filenames = filenames
         if self.filenames == None or len(self.filenames) == 0:
             return
         self.nextVideo()
-
         
     def setFile(self, filename):
         # create the media
@@ -210,6 +218,10 @@ class Player(QtGui.QMainWindow):
         # put the media in the media player
         self.mediaplayer.set_media(self.media)
 
+        # setup keylisteners
+        clipInfoFile = ClipInfoJsonFile(filename)
+        self.ratingAdapter.setReceiver(clipInfoFile)
+       
         # parse the metadata of the file
         self.media.parse()
         # set the title of the track as window title
@@ -289,10 +301,24 @@ class Player(QtGui.QMainWindow):
                 # "Pause", not the desired behavior of a media player
                 # this will fix it
                 self.Stop()
+
 class RatingEventKeyAdapter:
-    def __init__(self, receiver):
+    """Receives keyboard events and translates them to the proper method calls."""
+    def __init__(self, receiver = None):
         self.receiver = receiver
+
+    def setReceiver(self, receiver):
+        if self.receiver != None:
+            self.receiver.close()
+        self.receiver = receiver
+
     def keyPressed(self, key, frameno):
+        """Called when a key is pressed.
+        - key the ASCII representation of the key that is called.
+        - frameno the framenumber the key was pressed on."""
+        if self.receiver == None:
+            return
+
         if key == "1":
             self.receiver.setRating(frameno, 1)
         elif key == "2":
@@ -311,17 +337,6 @@ class RatingEventKeyAdapter:
             self.receiver.moveRating(frameno)
         # Ignore other key events.
 
-class ClipInfoManager:
-    def __init__(self, filename, clipInfoFile):
-        self.filename = filename 
-        self.clipInfoFile = clipInfoFile
-    def setRating(self, frameNo, rating):
-        self.clipInfoFile.addInfo(frameNo, rating)
-    def subtractFramesFromLatest(self, frames):
-        self.clipInfoFile.subtractFramesFromLatest(frames)
-    def moveRating(self, frameno):
-        self.clipInfoFile.moveRating(frameno)
-
 class ClipInfoJsonFile:
     def __init__(self, basename):
         self.filename = basename+".qhv.meta"
@@ -333,9 +348,12 @@ class ClipInfoJsonFile:
             self.frames = info["frames"]
         else: 
             self.frames = []
-    def addInfo(self, frameno, rating):
+    def setRating(self, frameno, rating):
         self.frames.append({"frameno" : frameno, "rating" : rating})
         self.write()
+    def close(self):
+        """Makes it possible for future implementations to save and clean up when info file is changed."""
+        pass
     def getFinalDatastructure(self):
         return {"filename":self.basename, "frames":self.frames}
     def subtractFramesFromLatest(self, frames):
@@ -350,16 +368,13 @@ class ClipInfoJsonFile:
         fp.close()
 
 if __name__ == "__main__":
-    filename = sys.argv[1]
-    clipInfoFile = ClipInfoJsonFile(filename)
-    clipInfoManager = ClipInfoManager(filename, clipInfoFile)
-    ratingAdapter = RatingEventKeyAdapter(clipInfoManager)
+    filenames = []
+    if len(sys.argv) > 1:
+        filenames = sys.argv[1:]
 
     app = QtGui.QApplication(sys.argv)
     player = Player()
-    player.addKeyListener(ratingAdapter)
     player.show()
     player.resize(640, 480)
-    if os.path.isfile(filename):
-        player.OpenFile(filename)
+    player.setFiles(filenames)
     sys.exit(app.exec_())
