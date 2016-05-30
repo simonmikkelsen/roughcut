@@ -35,6 +35,7 @@ class ExifReader:
     return None
 
   def getCreateDate(self):
+    # First use Location Date                   : 2013:05:25 14:43:51Z if existing.
     date = self.getOneOf(['CreateDate', 'DateTimeOriginal'])
     # Input e.g.: 2016:01:01 15:52:45+01:00
     if date == None:
