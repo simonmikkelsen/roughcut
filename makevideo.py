@@ -5,10 +5,12 @@ import os.path
 import json
 import subprocess
 import lib.infomerger as infomerger
+import filters.rating as rating
 
 class MkVideo:
-  def __init__(self, infofiles):
+  def __init__(self, filterClass, infofiles):
     self.infofiles = infofiles
+    self.filterClass = filterClass
 
   def mkMltXml(self):
     filenames = []
@@ -18,7 +20,8 @@ class MkVideo:
       filenames.append(reader.getFilename())
       merger = reader.getMerger()
       mergedInfo = merger.mergeInfo()
-      inouts.append(self.filter(mergedInfo))
+      #inouts.append(self.filter(mergedInfo))
+      inouts.append(self.filterClass.filter(mergedInfo))
 
     header = self.getHeader(filenames)
     body = self.getBody(inouts)
@@ -96,12 +99,12 @@ if __name__ == "__main__":
     if not os.path.isfile(f):
       print "The given filename '%s' does not exist." % f
 
-  mkvid = MkVideo(infofiles)
+  mkvid = MkVideo(rating.RatingFilter(4), infofiles)
   mltXml = mkvid.mkMltXml()
   meltfile = runner.getMltFile()
   fp = open(meltfile, "w")
   fp.write(mltXml)
   fp.close()
 
-  runner.run()
+  #runner.run()
 
