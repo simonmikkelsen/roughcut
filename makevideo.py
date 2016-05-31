@@ -86,6 +86,9 @@ if __name__ == "__main__":
     print "Usage: outputfile.mp4 meta-file [meta-file...]"
     sys.exit(1)
   outputfile = sys.argv[1]
+  if os.path.isfile(outputfile):
+      print "Outputfile '%s' already exists." % outputfil
+      sys.exit()
   runner = MltRunner(outputfile)
 
   infofiles = sys.argv[2:]

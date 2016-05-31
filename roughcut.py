@@ -48,6 +48,7 @@ class Player(QtGui.QMainWindow):
         self.currentFileNo = -1
 
         self.ratingAdapter = RatingEventKeyAdapter()
+        self.ratingAdapter.setPlayer(self)
         self.setKeyListener(self.ratingAdapter)
 
     def keyPressEvent(self, e):
@@ -278,8 +279,17 @@ class Player(QtGui.QMainWindow):
         """
         self.mediaplayer.audio_set_volume(Volume)
 
+    def moveRelative(self, seconds):
+        # Get media time in ms.
+        mediaTime = self.mediaplayer.get_time()
+        if mediaTime < 0:
+            return
+        newTime = int(mediaTime + (seconds * 1000))
+        self.mediaplayer.set_time(newTime)
+        self.updateUI()
+
     def setPosition(self, position):
-        """Set the position
+        """Set the position of the video but not the slider.
         """
         # setting the position to where the slider was dragged
         self.mediaplayer.set_position(position / 1000.0)
@@ -306,11 +316,14 @@ class RatingEventKeyAdapter:
     """Receives keyboard events and translates them to the proper method calls."""
     def __init__(self, receiver = None):
         self.receiver = receiver
+        self.player = None
 
     def setReceiver(self, receiver):
         if self.receiver != None:
             self.receiver.close()
         self.receiver = receiver
+    def setPlayer(self, player):
+        self.player = player
 
     def keyPressed(self, key, frameno):
         """Called when a key is pressed.
@@ -335,6 +348,13 @@ class RatingEventKeyAdapter:
             self.receiver.subtractFramesFromLatest(12)
         elif key == "m":
             self.receiver.moveRating(frameno)
+        elif key == "b":
+            if self.player != None:
+                self.player.moveRelative(-3)
+        elif key == "f":
+            if self.player != None:
+                self.player.moveRelative(3)
+        # Ignore other key events.
         # Ignore other key events.
 
 class ClipInfoJsonFile:
