@@ -4,6 +4,7 @@ import sys
 import os.path
 import json
 import subprocess
+import getopt
 import lib.infomerger as infomerger
 import filters.rating as rating
 
@@ -85,16 +86,33 @@ class MltRunner:
     subprocess.call(args)
 
 if __name__ == "__main__":
-  if len(sys.argv) < 3:
-    print "Usage: outputfile.mp4 meta-file [meta-file...]"
+  try:
+    opts, args = getopt.getopt(sys.argv[1:], "hp:",
+                  ["help", "profile="])
+  except getopt.GetoptError, err:
+    print str(err)
+    sys.exit(2)
+
+  profile = "rating"
+  for switch, value in opts:
+    if switch in ("-h", "--help"):
+      print """Usage: [-h|-p] outputfile.mp4 meta-file [meta-file...]
+-h --help     Show this help.
+-p --profile= Give the name of the profile to use. See profiles in the profile dir."""
+    elif switch in "-f", "--profile"):
+      profile = value
+
+
+  if len(args) < 2:
+    print "You must at least give an output file and a meta file."
     sys.exit(1)
-  outputfile = sys.argv[1]
+  outputfile = args[0]
   if os.path.isfile(outputfile):
       print "Outputfile '%s' already exists." % outputfil
       sys.exit()
   runner = MltRunner(outputfile)
 
-  infofiles = sys.argv[2:]
+  infofiles = args[1:]
   for f in infofiles:
     if not os.path.isfile(f):
       print "The given filename '%s' does not exist." % f
