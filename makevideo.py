@@ -4,7 +4,7 @@ import sys
 import os.path
 import json
 import subprocess
-import infomerger
+import lib.infomerger as infomerger
 
 class MkVideo:
   def __init__(self, infofiles):
