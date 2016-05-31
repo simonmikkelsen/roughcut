@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import qhvsqlite
+import lib.qhvsqlite as qhvsqlite
 
 class OverlapFinder:
   def __init__(self):
