@@ -7,6 +7,7 @@ import subprocess
 import getopt
 import lib.infomerger as infomerger
 import filters.rating as rating
+import filters.filterfactory as factory
 
 class MkVideo:
   def __init__(self, filterClass, infofiles):
@@ -99,7 +100,7 @@ if __name__ == "__main__":
       print """Usage: [-h|-p] outputfile.mp4 meta-file [meta-file...]
 -h --help     Show this help.
 -p --profile= Give the name of the profile to use. See profiles in the profile dir."""
-    elif switch in "-f", "--profile"):
+    elif switch in ("-p", "--profile"):
       profile = value
 
 
@@ -110,13 +111,16 @@ if __name__ == "__main__":
   if os.path.isfile(outputfile):
       print "Outputfile '%s' already exists." % outputfil
       sys.exit()
-  runner = MltRunner(outputfile)
 
   infofiles = args[1:]
   for f in infofiles:
     if not os.path.isfile(f):
       print "The given filename '%s' does not exist." % f
 
+  filterFactory = factory.FilterFactory()
+  filterFactory.create(profile)
+
+  runner = MltRunner(outputfile)
   mkvid = MkVideo(rating.RatingFilter(4), infofiles)
   mltXml = mkvid.mkMltXml()
   meltfile = runner.getMltFile()
