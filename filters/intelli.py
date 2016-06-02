@@ -16,7 +16,11 @@ class IntelliFilterSession:
     if minRating != None and minRating > 0:
       self.filterByRating(minRating)
 
-    clipsize = self.options.getInt('clipSize')
+    clipsize = self.options.getInt('maxclipsize')
+    if clipsize != None and clipsize > 0:
+      print self.mergedInfo
+      self.applyMaxClipSize(clipsize)
+      print self.mergedInfo
     maxlength = self.options.getInt('maxlength')
     if maxlength != None and maxlength > 0:
       self.applyMaxLength(maxlength)
@@ -32,9 +36,20 @@ class IntelliFilterSession:
     removeFromOut = int(framesToRemove / 2)
     removeFromIn = framesToRemove - removeFromOut
     info['out'] = info['out'] - removeFromOut
-    info['in'] = info['in'] - removeFromIn
+    info['in'] = info['in'] + removeFromIn
 
     return info
+
+  def applyMaxClipSize(self, maxSeconds):
+    maxFrames = self.sec2Frame(maxSeconds)
+    finalInfo = []
+    for info in self.mergedInfo:
+      size = self.size(info)
+      if size > maxFrames:
+        finalInfo.append(self.shorten(info, size - maxFrames))
+      else:
+        finalInfo.append(info)
+    self.mergedInfo = finalInfo
 
   def applyMaxLength(self, maxSeconds):
     totalFrames = 0
