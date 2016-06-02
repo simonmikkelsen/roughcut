@@ -1,3 +1,4 @@
-filter=Unnamed
-length=60
-clipsize=5
+filter=intelli
+minrating=4
+maxlength=10
+maxclipsize=5

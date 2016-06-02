@@ -118,10 +118,10 @@ if __name__ == "__main__":
       print "The given filename '%s' does not exist." % f
 
   filterFactory = factory.FilterFactory()
-  filterFactory.create(profile)
+  filterClass = filterFactory.create(profile)
 
   runner = MltRunner(outputfile)
-  mkvid = MkVideo(rating.RatingFilter(4), infofiles)
+  mkvid = MkVideo(filterClass, infofiles)
   mltXml = mkvid.mkMltXml()
   meltfile = runner.getMltFile()
   fp = open(meltfile, "w")

@@ -1,19 +1,21 @@
 import lib.optparser
 import filters.rating
+import filters.intelli
 
 class FilterFactory:
   def __init__(self):
     pass
-  def create(slef, filtername, options = []):
-    opt = lib.optparser.OptParser("profiles/"+filtername)
+  def create(slef, profilename, options = []):
+    opt = lib.optparser.OptParser("profiles/"+profilename)
     opt.parse()
     options = opt.getContent()
-    #TODO this is more a class name.
-    filterNameInternal = options['filter']
+    filterName = options['filter']
 
-    if filterNameInternal == 'rating':
+    if filterName == 'rating':
       return filters.rating.RatingFilter(options['rating'])
+    elif filterName == 'intelli':
+      return filters.intelli.IntelliFilter(options)
     else:
-      print "Unsupported filter: "+filterNameInternal
+      print "Unsupported filter: '%s'." % filterName
     
     
