@@ -1,3 +1,6 @@
+import os
+import os.path
+
 import lib.optparser
 import filters.rating
 import filters.intelli
@@ -6,7 +9,8 @@ class FilterFactory:
   def __init__(self):
     pass
   def create(slef, profilename, options = []):
-    opt = lib.optparser.OptParser("profiles/"+profilename)
+    scriptdir = os.path.dirname(os.path.realpath(__file__))
+    opt = lib.optparser.OptParser(os.path.join(scriptdir, "..", "profiles", profilename))
     opt.parse()
     options = opt.getContent()
     filterName = options['filter']

@@ -22,7 +22,6 @@ class MkVideo:
       filenames.append(reader.getFilename())
       merger = reader.getMerger()
       mergedInfo = merger.mergeInfo()
-      #inouts.append(self.filter(mergedInfo))
       inouts.append(self.filterClass.filter(mergedInfo))
 
     header = self.getHeader(filenames)
@@ -109,7 +108,7 @@ if __name__ == "__main__":
     sys.exit(1)
   outputfile = args[0]
   if os.path.isfile(outputfile):
-      print "Outputfile '%s' already exists." % outputfil
+      print "Outputfile '%s' already exists." % outputfile
       sys.exit()
 
   infofiles = args[1:]
@@ -128,5 +127,5 @@ if __name__ == "__main__":
   fp.write(mltXml)
   fp.close()
 
-  #runner.run()
+  runner.run()
 
