@@ -2,3 +2,4 @@ filter=intelli
 minrating=4
 maxlength=10
 maxclipsize=5
+minclipsize=2
