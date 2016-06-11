@@ -3,7 +3,7 @@ class IntelliFilter:
   def __init__(self, options):
     self.opt = lib.optreader.OptReader(options)
 
-  def filter(self, mergedInfo, framerate = 24):
+  def filter(self, mergedInfo, framerate = 30):
     session = IntelliFilterSession(self.opt, mergedInfo, framerate)
     return session.filter()
 class IntelliFilterSession:

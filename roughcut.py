@@ -62,7 +62,7 @@ class Player(QtGui.QMainWindow):
         # Calculate the frame number from the framerate and time.
         framerate = self.getFrameRate()
         frameNo = int(mediaTime * framerate / 1000)
-        self.keyListener.keyPressed(e.text(), frameNo)
+        self.keyListener.keyPressed(e.text(), frameNo, framerate)
 
     def getFrameRate(self):
         """Extracts the information to calculate a frame rate from the media."""
@@ -174,7 +174,7 @@ class Player(QtGui.QMainWindow):
         """Stop player
         """
         self.mediaplayer.stop()
-        self.playbutton.setText("Play")
+        self.playbutton.setText("&Play")
 
     def updateEnablements(self):
         if self.currentFileNo + 1 >= len(self.filenames):
@@ -325,12 +325,14 @@ class RatingEventKeyAdapter:
     def setPlayer(self, player):
         self.player = player
 
-    def keyPressed(self, key, frameno):
+    def keyPressed(self, key, frameno, framerate):
         """Called when a key is pressed.
         - key the ASCII representation of the key that is called.
         - frameno the framenumber the key was pressed on."""
         if self.receiver == None:
             return
+
+        self.receiver.setFrameRate(framerate)
 
         if key == "1":
             self.receiver.setRating(frameno, 1)
@@ -354,7 +356,8 @@ class RatingEventKeyAdapter:
         elif key == "f":
             if self.player != None:
                 self.player.moveRelative(3)
-        # Ignore other key events.
+        elif key == "d":
+            self.receiver.deleteLatest()
         # Ignore other key events.
 
 class ClipInfoJsonFile:
@@ -371,13 +374,18 @@ class ClipInfoJsonFile:
     def setRating(self, frameno, rating):
         self.frames.append({"frameno" : frameno, "rating" : rating})
         self.write()
+    def setFrameRate(self, framerate):
+        self.framerate = framerate
     def close(self):
         """Makes it possible for future implementations to save and clean up when info file is changed."""
         pass
     def getFinalDatastructure(self):
-        return {"filename":self.basename, "frames":self.frames}
+        return {"filename":self.basename, "framerate":str(self.framerate), "frames":self.frames}
     def subtractFramesFromLatest(self, frames):
         self.frames[-1]["frameno"] = self.frames[-1]["frameno"] - frames
+        self.write()
+    def deleteLatest(self):
+        del self.frames[-1]
         self.write()
     def moveRating(self, frameno):
         self.frames[-1]["frameno"] = frameno

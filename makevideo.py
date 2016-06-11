@@ -22,7 +22,12 @@ class MkVideo:
       filenames.append(reader.getFilename())
       merger = reader.getMerger()
       mergedInfo = merger.mergeInfo()
-      inouts.append(self.filterClass.filter(mergedInfo))
+      framerate = reader.getFrameRate()
+      if framerate == None:
+        # Currently OK guess.
+        # TODO: Read from the file.
+        framerate = 27
+      inouts.append(self.filterClass.filter(mergedInfo, framerate))
 
     header = self.getHeader(filenames)
     body = self.getBody(inouts)
@@ -75,32 +80,44 @@ class MkVideo:
 class MltRunner:
   def __init__(self, outputfile):
     self.outputfile = outputfile
+    render = True
   def getMltFile(self):
     mltfile = self.outputfile
     if self.outputfile.find(".") != -1:
       mltfile = self.outputfile[:self.outputfile.find(".")]
       mltfile = mltfile + ".mlt"
     return mltfile
+  def setRender(self, render):
+    self.render = render
   def run(self):
-    args = ["melt", self.getMltFile(), "-consumer", "avformat:%s" % self.outputfile]
+    if self.render:
+      args = ["melt", self.getMltFile(), "-consumer", "avformat:%s" % self.outputfile]
+    else:
+      args = ["melt", self.getMltFile()]
     subprocess.call(args)
 
 if __name__ == "__main__":
   try:
-    opts, args = getopt.getopt(sys.argv[1:], "hp:",
-                  ["help", "profile="])
+    opts, args = getopt.getopt(sys.argv[1:], "hp:s",
+                  ["help", "profile=", "show"])
   except getopt.GetoptError, err:
     print str(err)
     sys.exit(2)
 
   profile = "rating"
+  render = True
   for switch, value in opts:
     if switch in ("-h", "--help"):
-      print """Usage: [-h|-p] outputfile.mp4 meta-file [meta-file...]
+      print """Usage: [-h|-p|-s] outputfile.mp4 meta-file [meta-file...]
 -h --help     Show this help.
--p --profile= Give the name of the profile to use. See profiles in the profile dir."""
+-p --profile= Give the name of the profile to use. See profiles in the profile dir.
+-s --show     Show the video instead of rendering it to a file.
+              A fake output file must still be given, but it ignored.
+              This makes previewing easier."""
     elif switch in ("-p", "--profile"):
       profile = value
+    elif switch in ("-s", "--show"):
+      render = False
 
 
   if len(args) < 2:
@@ -120,6 +137,7 @@ if __name__ == "__main__":
   filterClass = filterFactory.create(profile)
 
   runner = MltRunner(outputfile)
+  runner.setRender(render)
   mkvid = MkVideo(filterClass, infofiles)
   mltXml = mkvid.mkMltXml()
   meltfile = runner.getMltFile()

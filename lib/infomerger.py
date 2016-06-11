@@ -20,6 +20,11 @@ class InfoReader:
 
   def getFilename(self):
     return self.info['filename']
+  def getFrameRate(self):
+    if 'framerate' in self.info:
+      return self.info['framerate']
+    else:
+      return None
     
 
 class InfoMerger:
