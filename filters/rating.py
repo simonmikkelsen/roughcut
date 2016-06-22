@@ -1,15 +1,15 @@
 
 class RatingFilter:
   def __init__(self, rating):
-    self.rating = rating
+    self.rating = int(rating)
 
-  def filter(self, mergedInfo):
+  def filter(self, mergedInfo, framerate):
     latestFrame = -1
     latestGood = -1
     minRating = self.rating
     inout = []
     for info in mergedInfo:
-      if info['rating'] >= minRating:
+      if int(info['rating']) >= minRating:
         if latestFrame < 0:
           latestFrame = info['frameno']
         else:
