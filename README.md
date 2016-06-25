@@ -8,9 +8,9 @@ Run:
 Use the file menu to select the videos to rate.
 This will show the first video. Use the short cuts, especially 1-5 to rate the parts of the video
 (1 is worst 5 is best). Press the next button to go to the next video.
-This will crate a .qhv.meta file (name will change) for each video.
+This will crate a .rcut file for each video.
 
-`makevideo.py out.mp4 video1.mp4.qhv.meta video2.qhv.meta [...]`
+`makevideo.py out.mp4 video1.mp4.rcut video2.rcut [...]`
 This will create the video. By default all parts rated 4 or 5 will be shown.
 Specify `-p advanced` which will use the profile in `profiles/advanced`.
 It sets a minimum and maximum size for individual clips as well as the video as a whole.

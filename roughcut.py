@@ -362,7 +362,7 @@ class RatingEventKeyAdapter:
 
 class ClipInfoJsonFile:
     def __init__(self, basename):
-        self.filename = basename+".qhv.meta"
+        self.filename = basename+".rcut"
         self.basename = basename
         if os.path.isfile(self.filename):
             fp = open(self.filename, "r")
