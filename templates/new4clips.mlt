@@ -1,0 +1,208 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mlt title="Anonymous Submission" version="0.9.0" root="/home/tryl" LC_NUMERIC="en_US.UTF-8">
+ <profile width="1920" display_aspect_den="9" colorspace="709" frame_rate_den="1" description="HD 1080p 30 fps" height="1080" display_aspect_num="16" frame_rate_num="30" progressive="1" sample_aspect_num="1" sample_aspect_den="1"/>
+ <producer id="black">
+  <property name="mlt_type">producer</property>
+  <property name="resource">black</property>
+  <property name="mlt_service">colour</property>
+ </producer>
+ <playlist id="black_track">
+  <entry producer="black"/>
+ </playlist>
+ <producer id="3">
+  <property name="mlt_type">producer</property>
+  <property name="resource">0x000000ff</property>
+  <property name="mlt_service">colour</property>
+ </producer>
+ <playlist id="playlist0">
+  <entry producer="3"/>
+ </playlist>
+ <producer id="7_3">
+  <property name="mlt_type">producer</property>
+  <property name="resource">%CLIP_1_PATH%</property>
+  <property name="mlt_service">avformat</property>
+ </producer>
+ <playlist id="playlist1">
+  <blank length="%CLIP_1_START%"/>
+  <entry producer="7_3"/>
+ </playlist>
+ <producer id="5_2">
+  <property name="mlt_type">producer</property>
+  <property name="resource">%CLIP_2_PATH%</property>
+  <property name="mlt_service">avformat</property>
+ </producer>
+ <playlist id="playlist2">
+  <blank length="%CLIP_2_START%"/>
+  <entry producer="5_2"/>
+ </playlist>
+ <producer id="1_1">
+  <property name="mlt_type">producer</property>
+  <property name="resource">%CLIP_3_PATH%</property>
+  <property name="mlt_service">avformat</property>
+ </producer>
+ <playlist id="playlist3">
+  <blank length="%CLIP_3_START%"/>
+  <entry producer="1_1"/>
+ </playlist>
+ <producer id="2">
+  <property name="mlt_type">producer</property>
+  <property name="resource">%CLIP_4_PATH%</property>
+  <property name="meta.attr.1.stream.language.markup">eng</property>
+  <property name="mlt_service">avformat</property>
+ </producer>
+ <playlist id="playlist4">
+  <blank length="%CLIP_4_START%"/>
+  <entry producer="2"/>
+ </playlist>
+ <tractor title="Anonymous Submission" global_feed="1" id="maintractor">
+  <property name="meta.volume">1</property>
+  <track producer="black_track"/>
+  <track producer="playlist0"/>
+  <track producer="playlist1"/>
+  <track producer="playlist2"/>
+  <track hide="audio" producer="playlist3"/>
+  <track producer="playlist4"/>
+  <transition id="transition0">
+   <property name="a_track">1</property>
+   <property name="b_track">2</property>
+   <property name="mlt_type">transition</property>
+   <property name="mlt_service">mix</property>
+   <property name="always_active">1</property>
+   <property name="combine">1</property>
+   <property name="internal_added">237</property>
+  </transition>
+  <transition id="transition1">
+   <property name="a_track">1</property>
+   <property name="b_track">3</property>
+   <property name="mlt_type">transition</property>
+   <property name="mlt_service">mix</property>
+   <property name="always_active">1</property>
+   <property name="internal_added">237</property>
+   <property name="combine">1</property>
+  </transition>
+  <transition id="transition2">
+   <property name="a_track">1</property>
+   <property name="b_track">4</property>
+   <property name="mlt_type">transition</property>
+   <property name="mlt_service">mix</property>
+   <property name="always_active">1</property>
+   <property name="internal_added">237</property>
+   <property name="combine">1</property>
+  </transition>
+  <transition id="transition3">
+   <property name="a_track">1</property>
+   <property name="b_track">5</property>
+   <property name="mlt_type">transition</property>
+   <property name="mlt_service">mix</property>
+   <property name="always_active">1</property>
+   <property name="internal_added">237</property>
+   <property name="combine">1</property>
+  </transition>
+  <transition in="969" out="3214" id="transition4">
+   <property name="a_track">1</property>
+   <property name="b_track">2</property>
+   <property name="start">0/0:100%x100%</property>
+   <property name="factory">loader</property>
+   <property name="aligned">1</property>
+   <property name="progressive">1</property>
+   <property name="mlt_type">transition</property>
+   <property name="mlt_service">composite</property>
+   <property name="automatic">1</property>
+   <property name="force_track">1</property>
+   <property name="deinterlace">0</property>
+   <property name="distort">0</property>
+   <property name="fill">1</property>
+   <property name="geometry">960/540:960x540:100</property>
+   <property name="luma_invert">0</property>
+   <property name="operator">over</property>
+   <property name="softness">0</property>
+   <property name="luma"/>
+  </transition>
+  <transition in="357" out="20790" id="transition5">
+   <property name="a_track">1</property>
+   <property name="b_track">3</property>
+   <property name="start">0/0:100%x100%</property>
+   <property name="factory">loader</property>
+   <property name="aligned">1</property>
+   <property name="progressive">1</property>
+   <property name="mlt_type">transition</property>
+   <property name="mlt_service">composite</property>
+   <property name="automatic">1</property>
+   <property name="force_track">1</property>
+   <property name="deinterlace">0</property>
+   <property name="distort">0</property>
+   <property name="fill">1</property>
+   <property name="geometry">0/540:960x540:100</property>
+   <property name="luma_invert">0</property>
+   <property name="operator">over</property>
+   <property name="softness">0</property>
+   <property name="luma"/>
+  </transition>
+  <transition in="769" out="3523" id="transition6">
+   <property name="a_track">1</property>
+   <property name="b_track">4</property>
+   <property name="start">0/0:100%x100%</property>
+   <property name="factory">loader</property>
+   <property name="aligned">1</property>
+   <property name="progressive">1</property>
+   <property name="mlt_type">transition</property>
+   <property name="mlt_service">composite</property>
+   <property name="automatic">1</property>
+   <property name="force_track">1</property>
+   <property name="deinterlace">0</property>
+   <property name="distort">0</property>
+   <property name="fill">1</property>
+   <property name="geometry">960/0:960x540:100</property>
+   <property name="luma_invert">0</property>
+   <property name="operator">over</property>
+   <property name="softness">0</property>
+  </transition>
+  <transition out="7297" id="transition7">
+   <property name="a_track">1</property>
+   <property name="b_track">5</property>
+   <property name="start">0/0:100%x100%</property>
+   <property name="factory">loader</property>
+   <property name="aligned">1</property>
+   <property name="progressive">1</property>
+   <property name="mlt_type">transition</property>
+   <property name="mlt_service">composite</property>
+   <property name="automatic">1</property>
+   <property name="force_track">1</property>
+   <property name="deinterlace">0</property>
+   <property name="distort">0</property>
+   <property name="fill">1</property>
+   <property name="geometry">0/0:960x540:100</property>
+   <property name="luma_invert">0</property>
+   <property name="operator">over</property>
+   <property name="softness">0</property>
+  </transition>
+ </tractor>
+  <profileinfo width="1920" display_aspect_den="9" frame_rate_den="1" description="HD 1080p 30 fps" height="1080" frame_rate_num="30" display_aspect_num="16" progressive="1" sample_aspect_num="1" sample_aspect_den="1"/>
+  <tracksinfo>
+   <trackinfo blind="0" mute="0" locked="0" trackname="Video 5"/>
+   <trackinfo blind="0" mute="0" locked="0" trackname="Video 4"/>
+   <trackinfo blind="0" mute="0" locked="0" trackname="Video 3"/>
+   <trackinfo blind="0" mute="1" locked="0" trackname="Video 2"/>
+   <trackinfo blind="0" mute="0" locked="0" trackname="Video 1"/>
+  </tracksinfo>
+   <metaproperty tool="" name="meta.attr.0.stream.creation_time">2016-02-26 17:16:44</metaproperty>
+   <metaproperty tool="" name="meta.attr.0.stream.handler_name">Core Media Data Handler</metaproperty>
+   <metaproperty tool="" name="meta.attr.1.stream.creation_time">2016-02-26 17:16:44</metaproperty>
+   <metaproperty tool="" name="meta.attr.1.stream.handler_name">Core Media Data Handler</metaproperty>
+   <metaproperty tool="" name="meta.attr.compatible_brands">qt  </metaproperty>
+   <metaproperty tool="" name="meta.attr.creation_time">2016-02-26 17:16:44</metaproperty>
+   <metaproperty tool="" name="meta.attr.major_brand">qt  </metaproperty>
+   <metaproperty tool="" name="meta.attr.minor_version">0</metaproperty>
+   <metaproperty tool="" name="meta.attr.0.stream.creation_time">2016-02-26 17:13:31</metaproperty>
+   <metaproperty tool="" name="meta.attr.0.stream.handler_name">VideoHandle</metaproperty>
+   <metaproperty tool="" name="meta.attr.0.stream.language">eng</metaproperty>
+   <metaproperty tool="" name="meta.attr.1.stream.creation_time">2016-02-26 17:13:31</metaproperty>
+   <metaproperty tool="" name="meta.attr.1.stream.handler_name">SoundHandle</metaproperty>
+   <metaproperty tool="" name="meta.attr.1.stream.language">eng</metaproperty>
+   <metaproperty tool="" name="meta.attr.compatible_brands">isommp42</metaproperty>
+   <metaproperty tool="" name="meta.attr.creation_time">2016-02-26 17:13:31</metaproperty>
+   <metaproperty tool="" name="meta.attr.major_brand">mp42</metaproperty>
+   <metaproperty tool="" name="meta.attr.minor_version">0</metaproperty>
+  <markers/>
+  <groups/>
+</mlt>
